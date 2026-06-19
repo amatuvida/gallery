@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>느린 오후의 그림 — 김광호</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400&display=swap');
+  @font-face {
+    font-family: 'BarunHippie';
+    src: url('https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_2210-2@1.0/BarunhiPPie.woff2') format('woff2');
+    font-weight: normal; font-style: normal;
+  }
+  :root{--bg:#1a1814;--surface:#221f1b;--border:#3a3530;--gold:#c9a96e;--gold-dim:#8a7050;--cream:#f0e8d8;--muted:#7a7268;--white:#faf6f0}
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg);color:var(--cream);font-family:'Noto Sans KR',sans-serif;font-weight:300;min-height:100vh}
+
+  header{padding:60px 40px 40px;text-align:center;border-bottom:1px solid var(--border)}
+  .eyebrow{font-size:11px;letter-spacing:4px;color:var(--gold);text-transform:uppercase;margin-bottom:16px;font-family:'Noto Sans KR',sans-serif}
+  h1{font-family:'BarunHippie',sans-serif;font-weight:normal;font-size:clamp(28px,5vw,48px);color:var(--white);line-height:1.3}
+  .author{margin-top:10px;font-size:14px;color:var(--muted);letter-spacing:3px;font-family:'Noto Sans KR',sans-serif}
+
+  nav{display:flex;justify-content:center;gap:8px;padding:24px 40px;border-bottom:1px solid var(--border)}
+  .nav-btn{background:none;border:1px solid var(--border);color:var(--muted);padding:8px 20px;border-radius:2px;font-family:'Noto Sans KR',sans-serif;font-size:13px;cursor:pointer;transition:all 0.2s;letter-spacing:1px}
+  .nav-btn:hover,.nav-btn.active{border-color:var(--gold);color:var(--gold)}
+
+  .view{display:none}.view.active{display:block}
+
+  #grid-view{padding:40px;max-width:1400px;margin:0 auto}
+  .grid-count{font-size:12px;color:var(--muted);letter-spacing:2px;margin-bottom:24px;text-align:right;font-family:'Noto Sans KR',sans-serif}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:20px}
+  .grid-item{cursor:pointer;overflow:hidden;border-radius:2px;background:var(--surface);border:1px solid var(--border);transition:transform 0.25s,border-color 0.25s;position:relative}
+  .grid-item:hover{transform:translateY(-3px);border-color:var(--gold-dim)}
+  .grid-item img{width:100%;aspect-ratio:4/3;object-fit:cover;display:block;transition:transform 0.4s}
+  .grid-item:hover img{transform:scale(1.03)}
+  .grid-caption{padding:14px 16px}
+  .grid-title{font-family:'BarunHippie',sans-serif;font-size:16px;color:var(--cream);font-weight:normal;line-height:1.7}
+  .grid-meta{font-size:11px;color:var(--muted);margin-top:5px;font-family:'Noto Sans KR',sans-serif}
+  .grid-num{position:absolute;top:10px;left:10px;font-size:10px;color:var(--gold);letter-spacing:1px;background:rgba(26,24,20,0.75);padding:3px 7px;border-radius:1px;backdrop-filter:blur(4px);font-family:'Noto Sans KR',sans-serif}
+  #status{text-align:center;padding:60px 20px;color:var(--muted);font-size:14px;font-family:'Noto Sans KR',sans-serif}
+
+  #slide-view{display:none;flex-direction:column;align-items:center;padding:40px 20px}
+  #slide-view.active{display:flex}
+  .slide-stage{width:100%;max-width:960px;position:relative}
+  .slide-img-wrap{width:100%;background:var(--surface);border:1px solid var(--border);border-radius:2px;overflow:hidden;display:flex;align-items:center;justify-content:center;min-height:300px}
+  .slide-img-wrap img{width:100%;max-height:68vh;object-fit:contain;display:block;transition:opacity 0.3s}
+  .slide-img-wrap img.fade{opacity:0}
+  .slide-arrow{position:absolute;top:50%;transform:translateY(-50%);background:rgba(26,24,20,0.7);border:1px solid var(--border);color:var(--cream);width:44px;height:68px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:20px;z-index:10;opacity:0;transition:opacity 0.25s,background 0.2s,border-color 0.2s;backdrop-filter:blur(4px)}
+  .slide-stage:hover .slide-arrow{opacity:1}
+  .slide-arrow:hover{background:rgba(201,169,110,0.2);border-color:var(--gold);color:var(--gold)}
+  .slide-arrow.left{left:0;border-radius:0 2px 2px 0}.slide-arrow.right{right:0;border-radius:2px 0 0 2px}
+  .slide-info{margin-top:32px;text-align:center}
+  .slide-index{font-size:11px;color:var(--gold);letter-spacing:3px;margin-bottom:12px;font-family:'Noto Sans KR',sans-serif}
+  .slide-title{font-family:'BarunHippie',sans-serif;font-size:clamp(20px,3.5vw,30px);font-weight:normal;color:var(--white);line-height:1.8;max-width:620px}
+  .slide-desc{font-size:13px;color:var(--muted);margin-top:10px;font-family:'Noto Sans KR',sans-serif}
+  .slide-dots{display:flex;gap:8px;justify-content:center;margin-top:28px;flex-wrap:wrap}
+  .dot{width:7px;height:7px;border-radius:50%;background:var(--border);cursor:pointer;transition:background 0.2s,transform 0.2s}
+  .dot.active{background:var(--gold);transform:scale(1.5)}.dot:hover{background:var(--gold-dim)}
+  .thumb-strip{display:flex;gap:8px;margin-top:20px;overflow-x:auto;max-width:960px;width:100%;padding-bottom:6px;scrollbar-width:thin;scrollbar-color:var(--border) transparent}
+  .thumb-strip img{width:80px;height:58px;object-fit:cover;border-radius:1px;border:2px solid transparent;cursor:pointer;opacity:0.45;transition:opacity 0.2s,border-color 0.2s;flex-shrink:0}
+  .thumb-strip img.active{border-color:var(--gold);opacity:1}.thumb-strip img:hover{opacity:0.8}
+  .key-hint{font-size:11px;color:var(--muted);margin-top:16px;letter-spacing:1px;font-family:'Noto Sans KR',sans-serif}
+  .key-hint span{display:inline-block;border:1px solid var(--border);padding:1px 6px;border-radius:3px;font-size:10px;margin:0 2px}
+
+  #lightbox{display:none;position:fixed;inset:0;background:rgba(8,7,6,0.96);z-index:1000;align-items:center;justify-content:center;flex-direction:column;backdrop-filter:blur(12px)}
+  #lightbox.open{display:flex}
+  #lightbox img{max-width:92vw;max-height:84vh;object-fit:contain;border-radius:2px}
+  .lb-close{position:absolute;top:20px;right:24px;background:none;border:none;color:var(--muted);font-size:28px;cursor:pointer;transition:color 0.2s;line-height:1}
+  .lb-close:hover{color:var(--white)}
+  .lb-caption{margin-top:16px;font-family:'BarunHippie',sans-serif;font-size:17px;color:var(--cream);text-align:center;line-height:1.8;max-width:600px;padding:0 20px}
+  .lb-nav{position:absolute;top:50%;transform:translateY(-50%);background:none;border:1px solid var(--border);color:var(--cream);width:48px;height:80px;font-size:22px;cursor:pointer;transition:border-color 0.2s,color 0.2s;display:flex;align-items:center;justify-content:center}
+  .lb-nav:hover{border-color:var(--gold);color:var(--gold)}
+  .lb-nav.left{left:16px;border-radius:0 2px 2px 0}.lb-nav.right{right:16px;border-radius:2px 0 0 2px}
+
+  /* 음악 플레이어 */
+  #music-bar{
+    position:fixed;bottom:24px;right:24px;
+    display:flex;align-items:center;gap:10px;
+    background:rgba(26,24,20,0.88);
+    border:1px solid var(--border);
+    border-radius:24px;
+    padding:10px 16px;
+    backdrop-filter:blur(12px);
+    z-index:500;
+    transition:opacity 0.3s;
+  }
+  #music-bar:hover{border-color:var(--gold-dim)}
+  #music-toggle{
+    background:none;border:none;cursor:pointer;
+    color:var(--gold);font-size:18px;
+    width:28px;height:28px;
+    display:flex;align-items:center;justify-content:center;
+    transition:color 0.2s;flex-shrink:0;
+  }
+  #music-toggle:hover{color:var(--white)}
+  #music-label{
+    font-size:11px;color:var(--muted);
+    font-family:'Noto Sans KR',sans-serif;
+    letter-spacing:1px;white-space:nowrap;
+  }
+  #volume-slider{
+    -webkit-appearance:none;appearance:none;
+    width:64px;height:2px;
+    background:var(--border);border-radius:1px;outline:none;cursor:pointer;
+  }
+  #volume-slider::-webkit-slider-thumb{
+    -webkit-appearance:none;appearance:none;
+    width:12px;height:12px;border-radius:50%;
+    background:var(--gold);cursor:pointer;
+  }
+  #yt-frame{display:none}
+
+  footer{text-align:center;padding:40px;border-top:1px solid var(--border);font-size:12px;color:var(--muted);letter-spacing:1px;margin-top:40px;font-family:'Noto Sans KR',sans-serif}
+
+  @media(max-width:600px){
+    header{padding:40px 20px 28px}nav{padding:16px 20px}.nav-btn{padding:7px 14px;font-size:12px}
+    #grid-view{padding:20px 14px}.grid{grid-template-columns:repeat(2,1fr);gap:10px}
+    .slide-arrow{opacity:1;width:36px;height:52px;font-size:16px}.lb-nav{display:none}
+    #music-bar{bottom:16px;right:16px;padding:8px 12px}
+    #volume-slider{width:48px}
+  }
+  @media(prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+
+<header>
+  <p class="eyebrow">Gallery</p>
+  <h1>느린 오후의 그림</h1>
+  <p class="author">김광호</p>
+</header>
+
+<nav>
+  <button class="nav-btn active" onclick="showView('grid')">전체 보기</button>
+  <button class="nav-btn" onclick="showView('slide')">한 장씩 보기</button>
+</nav>
+
+<div id="grid-view" class="view active">
+  <div style="max-width:1400px;margin:0 auto;padding:40px">
+    <p class="grid-count" id="count-label"></p>
+    <div id="status">그림을 불러오는 중...</div>
+    <div class="grid" id="grid"></div>
+  </div>
+</div>
+
+<div id="slide-view" class="view">
+  <div class="slide-stage">
+    <div class="slide-img-wrap">
+      <button class="slide-arrow left" onclick="move(-1)">&#8592;</button>
+      <img id="slide-img" src="" alt="">
+      <button class="slide-arrow right" onclick="move(1)">&#8594;</button>
+    </div>
+  </div>
+  <div class="slide-info">
+    <p class="slide-index" id="slide-index"></p>
+    <p class="slide-title" id="slide-title"></p>
+    <p class="slide-desc" id="slide-desc"></p>
+  </div>
+  <div class="slide-dots" id="dots"></div>
+  <div class="thumb-strip" id="thumb-strip"></div>
+  <p class="key-hint"><span>←</span> <span>→</span> 키보드로도 넘길 수 있어요 &nbsp;·&nbsp; 터치 스와이프 가능</p>
+</div>
+
+<div id="lightbox">
+  <button class="lb-close" onclick="closeLightbox()">&#x2715;</button>
+  <button class="lb-nav left" onclick="lbMove(-1)">&#8592;</button>
+  <img id="lb-img" src="" alt="">
+  <p class="lb-caption" id="lb-caption"></p>
+  <button class="lb-nav right" onclick="lbMove(1)">&#8594;</button>
+</div>
+
+<!-- 숨겨진 유튜브 플레이어 -->
+<div id="yt-frame">
+  <iframe id="yt-player"
+    src="https://www.youtube.com/embed/8bZgR8SRRI0?autoplay=1&loop=1&playlist=8bZgR8SRRI0&controls=0&enablejsapi=1"
+    allow="autoplay"
+    style="width:1px;height:1px;opacity:0;position:absolute;pointer-events:none">
+  </iframe>
+</div>
+
+<!-- 음악 컨트롤 바 -->
+<div id="music-bar">
+  <button id="music-toggle" onclick="toggleMusic()" title="음악 켜기/끄기">♪</button>
+  <span id="music-label">Yiruma — River Flows in You</span>
+  <input type="range" id="volume-slider" min="0" max="100" value="25"
+    oninput="setVolume(this.value)" title="볼륨">
+</div>
+
+<footer>파스텔 · 캘리그라피 · 김광호</footer>
+
+<script>
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// ✏️ 여기만 수정하면 돼요
+const GITHUB_USER   = 'amatuvida';
+const GITHUB_REPO   = 'dad-gallery';
+const IMAGES_FOLDER = 'images';
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+function nameToTitle(filename) {
+  return filename
+    .replace(/\.[^.]+$/, '')
+    .replace(/^\d+[_\-\s]*/, '')
+    .replace(/[_\-]/g, ' ');
+}
+const IMG_EXTS = ['jpg','jpeg','png','webp','gif'];
+
+let PAINTINGS = [], cur = 0, lbI = 0;
+
+async function loadImages() {
+  const apiUrl = `https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/${IMAGES_FOLDER}`;
+  try {
+    const res = await fetch(apiUrl);
+    if (!res.ok) throw new Error(res.status);
+    const files = await res.json();
+    PAINTINGS = files
+      .filter(f => IMG_EXTS.includes(f.name.split('.').pop().toLowerCase()))
+      .sort((a,b) => a.name.localeCompare(b.name, undefined, {numeric:true}))
+      .map(f => ({ src: f.download_url, title: nameToTitle(f.name), desc: '파스텔 · 캘리그라피' }));
+    if (PAINTINGS.length === 0) {
+      document.getElementById('status').textContent = 'images 폴더에 그림이 없어요.';
+      return;
+    }
+    document.getElementById('status').style.display = 'none';
+    document.getElementById('count-label').textContent = `총 ${PAINTINGS.length}점`;
+    buildGrid(); buildSlide();
+  } catch(e) {
+    document.getElementById('status').textContent = '그림을 불러오지 못했어요. 잠시 후 다시 시도해주세요.';
+  }
+}
+
+function buildGrid() {
+  const g = document.getElementById('grid'); g.innerHTML = '';
+  PAINTINGS.forEach((p,i) => {
+    const el = document.createElement('div'); el.className = 'grid-item';
+    el.innerHTML = `<span class="grid-num">${String(i+1).padStart(2,'0')}</span><img src="${p.src}" alt="${p.title}" loading="lazy"><div class="grid-caption"><p class="grid-title">${p.title}</p>${p.desc?`<p class="grid-meta">${p.desc}</p>`:''}</div>`;
+    el.onclick = () => openLightbox(i); g.appendChild(el);
+  });
+}
+function buildSlide() {
+  const dots = document.getElementById('dots'), strip = document.getElementById('thumb-strip');
+  dots.innerHTML = ''; strip.innerHTML = '';
+  PAINTINGS.forEach((p,i) => {
+    const d = document.createElement('div'); d.className='dot'+(i===0?' active':''); d.onclick=()=>goTo(i); dots.appendChild(d);
+    const t = document.createElement('img'); t.src=p.src; t.alt=p.title; t.loading='lazy'; if(i===0)t.className='active'; t.onclick=()=>goTo(i); strip.appendChild(t);
+  });
+  renderSlide();
+}
+function renderSlide() {
+  const p = PAINTINGS[cur];
+  const img = document.getElementById('slide-img');
+  img.classList.add('fade');
+  setTimeout(() => { img.src=p.src; img.alt=p.title; img.classList.remove('fade'); }, 200);
+  document.getElementById('slide-index').textContent = `${String(cur+1).padStart(2,'0')} / ${String(PAINTINGS.length).padStart(2,'0')}`;
+  document.getElementById('slide-title').textContent = p.title;
+  document.getElementById('slide-desc').textContent = p.desc||'';
+  document.querySelectorAll('.dot').forEach((d,i)=>d.classList.toggle('active',i===cur));
+  const th = document.querySelectorAll('#thumb-strip img');
+  th.forEach((t,i)=>t.classList.toggle('active',i===cur));
+  th[cur]?.scrollIntoView({behavior:'smooth',inline:'center',block:'nearest'});
+}
+function goTo(n){cur=(n+PAINTINGS.length)%PAINTINGS.length;renderSlide();}
+function move(d){goTo(cur+d);}
+function openLightbox(i){lbI=i;renderLb();document.getElementById('lightbox').classList.add('open');document.body.style.overflow='hidden';}
+function renderLb(){const p=PAINTINGS[lbI];document.getElementById('lb-img').src=p.src;document.getElementById('lb-img').alt=p.title;document.getElementById('lb-caption').textContent=p.title;}
+function lbMove(d){lbI=(lbI+d+PAINTINGS.length)%PAINTINGS.length;renderLb();}
+function closeLightbox(){document.getElementById('lightbox').classList.remove('open');document.body.style.overflow='';}
+function showView(n){
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+  if(n==='grid'){document.getElementById('grid-view').classList.add('active');document.querySelectorAll('.nav-btn')[0].classList.add('active');}
+  else{document.getElementById('slide-view').classList.add('active');document.querySelectorAll('.nav-btn')[1].classList.add('active');}
+}
+document.addEventListener('keydown',e=>{
+  if(document.getElementById('lightbox').classList.contains('open')){if(e.key==='ArrowLeft')lbMove(-1);if(e.key==='ArrowRight')lbMove(1);if(e.key==='Escape')closeLightbox();return;}
+  if(document.getElementById('slide-view').classList.contains('active')){if(e.key==='ArrowLeft')move(-1);if(e.key==='ArrowRight')move(1);}
+});
+let tx=null;
+document.addEventListener('touchstart',e=>tx=e.touches[0].clientX);
+document.addEventListener('touchend',e=>{if(tx===null)return;const dx=e.changedTouches[0].clientX-tx;if(Math.abs(dx)<40)return;if(document.getElementById('slide-view').classList.contains('active'))move(dx<0?1:-1);tx=null;});
+
+// ── 음악 ──
+let musicOn = false;
+const volumeSlider = document.getElementById('volume-slider');
+
+function toggleMusic() {
+  const frame = document.getElementById('yt-frame');
+  const btn   = document.getElementById('music-toggle');
+  if (!musicOn) {
+    frame.style.display = 'block';
+    btn.textContent = '♫';
+    btn.style.color = 'var(--gold)';
+    musicOn = true;
+  } else {
+    frame.style.display = 'none';
+    btn.textContent = '♪';
+    btn.style.color = 'var(--muted)';
+    musicOn = false;
+  }
+}
+
+function setVolume(val) {
+  // YouTube iframe API로 볼륨 조절
+  const iframe = document.getElementById('yt-player');
+  try {
+    iframe.contentWindow.postMessage(
+      JSON.stringify({event:'command', func:'setVolume', args:[parseInt(val)]}),
+      '*'
+    );
+  } catch(e){}
+}
+
+// 페이지 로드 시 볼륨을 낮게 시작 (25)
+window.addEventListener('load', () => {
+  setTimeout(() => setVolume(25), 2000);
+});
+
+loadImages();
+</script>
+</body>
+</html>
